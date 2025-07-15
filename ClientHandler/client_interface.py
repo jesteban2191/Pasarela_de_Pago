@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
+import pandas as pd
 
 class ClientHandlerInterface(ABC):
     @abstractmethod
@@ -11,9 +12,12 @@ class ClientHandlerInterface(ABC):
         pass
 
     @abstractmethod
-    def create_customer(self, name: str, email: str, address: str = None, city: str = None, country: str = None, phone: str = None, state: str = None, postal_code: str = None, description: str = None, currency: str = "usd", default_payment_method: str = None, payment_methods: list[Dict[str,str]] = []):
+    def create_customer(self, name: str, email: str, address: str = "", city: str = "", country: str = "", phone: str = "", state: str = "", postal_code: str = "", description: str = "", currency: str = "usd", default_payment_method: str = "", payments_methods: pd.DataFrame = pd.DataFrame()):
         pass
 
-    def update_customer(self, customer_id: str, name: str = None, email: str = None, address: str = None, city: str = None, country: str = None, phone: str = None, state: str = None, postal_code: str = None, description: str = None, currency: str = "usd", default_payment_method: str = None):
+    def update_customer(self, customer_id: str, name: str = "", email: str = "", address: str = "", city: str = "", country: str = "", phone: str = "", state: str = "", postal_code: str = "", description: str = "", currency: str = "usd", default_payment_method: str = "", payments_methods: pd.DataFrame = pd.DataFrame()):
         """Update an existing customer with the provided details."""
+        pass
+
+    def delete_customer(self, customer_id: str):
         pass
