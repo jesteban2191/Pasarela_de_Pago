@@ -8,4 +8,5 @@ class ClientFactory:
             return StripeClient()
         elif gateway == "wompi":
             pass
-        raise ValueError(f"Unknown payment gateway: {gateway}")
+        else:
+            raise ValueError(f"Unknown payment gateway: {gateway}")

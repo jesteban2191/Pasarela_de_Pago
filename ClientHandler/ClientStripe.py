@@ -1,12 +1,15 @@
 from ..decorators.decorators import check_type_args
 import stripe
 from ..auth import *
-from .client_interface import ClientInterface
+from .client_interface import ClientHandlerInterface
 from typing import Dict, Any
 import pandas as pd
 
-class StripeClient(ClientInterface):
+class StripeClient(ClientHandlerInterface):
 
+    ####################################################################################
+    ###                         Get all customers in Stripe
+    ####################################################################################
     @check_type_args
     def get_customers(self) -> Dict[str, Any]:
         """Retrieve the current customer."""
@@ -36,6 +39,10 @@ class StripeClient(ClientInterface):
             # Handle exceptions (e.g., log the error, re-raise, etc.)
             print(f"Error creating customer: {e}")
     
+
+    ####################################################################################
+    ###                         Get customer information by ID
+    ####################################################################################
     @check_type_args
     def get_customer_info(self, customer_id: str) -> Dict[str, Any]:
         """Retrieve information about a specific customer."""
@@ -69,11 +76,15 @@ class StripeClient(ClientInterface):
 
         
 
+    ####################################################################################
+    ###                         Create a new customer in Stripe
+    ####################################################################################
     @check_type_args
     def create_customer(self, name: str, email: str, address: str = "", city: str = "", country: str = "", phone: str = "", state: str = "", postal_code: str = "", description: str = "", currency: str = "usd", default_payment_method: str = "", payments_methods: pd.DataFrame = pd.DataFrame()) -> Dict[str, Any]:
 
+        if not name or not email:
+            raise ValueError("Name and email must be provided to create a customer.")
         
-
         try:
             stripe_customer = stripe.Customer.create(
                 name=name,
@@ -123,6 +134,10 @@ class StripeClient(ClientInterface):
 
         return stripe_customer
     
+    ####################################################################################
+    ###                         Update an existing customer in Stripe
+    ####################################################################################
+    
     @check_type_args
     def update_customer(self, customer_id: str, name: str = "", email: str = "", address: str = "", city: str = "", country: str = "", phone: str = "", state: str = "", postal_code: str = "", description: str = "", currency: str = "usd", default_payment_method: str = "", payments_methods: pd.DataFrame = pd.DataFrame()) -> Dict[str, Any]:
         """Update an existing customer with the provided details."""
@@ -130,12 +145,6 @@ class StripeClient(ClientInterface):
 
         if not customer_id:
             raise ValueError("Customer ID must be provided for updating a customer.")
-        if not name or not email:
-            raise ValueError("At least Name and email must be provided for updating a customer.")
-        
-
-
-
     
         try:
             customer = stripe.Customer.modify(
@@ -185,6 +194,9 @@ class StripeClient(ClientInterface):
 
         return customer
     
+    ####################################################################################
+    ###                         Delete a customer in Stripe
+    ####################################################################################
     @check_type_args
     def delete_customer(self, customer_id: str) -> Dict[str, Any]:
         """Delete a customer by their ID."""
@@ -216,6 +228,11 @@ class StripeClient(ClientInterface):
             # Handle exceptions (e.g., log the error, re-raise, etc.)
             print(f"Error updating customer: {e}")
 
+
+    
+    ####################################################################################
+    ###                         Search customer in Stripe by query
+    ####################################################################################
     @check_type_args
     def search_customers(self, query: str) -> Dict[str, Any]:
         """Search for customers based on a query."""
