@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 class PaymentMethodInterface(ABC):
     @abstractmethod
-    def create_paymentmethod(self, type_paymentmethod: str, customer_id: str, account_number: str, account_type: str, account_holder_type: str, account_holder_name: str, routing_number: str, bank_name: str ,card_number: str, card_exp_month: str, card_exp_year: str, card_cvc: str, token_card: str):
+    def create_paymentmethod(self, type_paymentmethod: str, customer_id: str = "", account_number: str = "", account_type: str = "", account_holder_type: str = "", account_holder_name: str = "", routing_number: str = "", bank_name: str = "",card_number: str = "", card_exp_month: str = "", card_exp_year: str = "", card_cvc: str = "", token_card: str = ""):
         """
         Create a payment method for the customer.
         
@@ -14,7 +14,7 @@ class PaymentMethodInterface(ABC):
         pass
 
     @abstractmethod
-    def update_paymentmethod(self, paymentmethod_id: str, type_paymentmethod: str, customer_id: str, account_number: str, account_type: str, account_holder_type: str, account_holder_name: str, routing_number: str, bank_name: str, card_number: str, card_exp_month: str, card_exp_year: str, card_cvc: str, token_card: str):
+    def update_paymentmethod(self, paymentmethod_id: str, type_paymentmethod: str, account_number: str = "", account_type: str = "", account_holder_type: str = "", account_holder_name: str = "", routing_number: str = "", bank_name: str = "",card_number: str = "", card_exp_month: str = "", card_exp_year: str = "", card_cvc: str = "", token_card: str = ""):
         """
         Update an existing payment method for the customer.
         
@@ -27,7 +27,7 @@ class PaymentMethodInterface(ABC):
         pass
 
     @abstractmethod
-    def get_customer_paymentmethods(self, customer_id: str):
+    def get_customer_paymentmethods(self, customer_id: str, limit: int = 0, starting_after: str = "", ending_before: str = ""):
         """
         List all payment methods associated with a customer.
         
@@ -47,7 +47,7 @@ class PaymentMethodInterface(ABC):
         pass
     
     @abstractmethod
-    def get_paymentmethods(self, ending_before: str, starting_after: str, limit, customer_id: str, type: str):
+    def get_paymentmethods(self, ending_before: str = "", starting_after: str = "", limit: int = 0, type: str = ""):
 
         pass
 
