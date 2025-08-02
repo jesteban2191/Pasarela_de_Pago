@@ -72,6 +72,16 @@ class StripeRefund(RefundInterface):
 
         try:
             refunds = stripe.Refund.list(**params)
+            has_more = refunds['has_more']
+            list_refunds = refunds['data']
+
+            while has_more:
+
+                params["starting_after"] = list_refunds[-1].id
+                refunds = stripe.Refund.list(**params)
+                has_more = refunds['has_more']
+                list_refunds.extend(refunds['data'])
+
         except stripe.error.InvalidRequestError as e:
             print(f"Invalid Request Error: {e.user_message}")
         except stripe.error.AuthenticationError as e:
@@ -83,4 +93,4 @@ class StripeRefund(RefundInterface):
         except Exception as e:
             print(f"Unexpected Error: {e}")
 
-        return refunds
+        return list_refunds

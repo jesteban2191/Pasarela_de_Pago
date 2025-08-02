@@ -4,7 +4,7 @@ import pandas as pd
 
 class ClientHandlerInterface(ABC):
     @abstractmethod
-    def get_customers(self):
+    def get_customers(self, limit: int = 0, starting_after: str = "", ending_before: str = "") -> List[Dict[str, Any]]:
         pass
 
     @abstractmethod

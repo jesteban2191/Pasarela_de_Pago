@@ -36,7 +36,7 @@ class StripePaymentMethod(PaymentMethodInterface):
             else:
                 raise ValueError("At least one bank account detail must be provided.")
         
-        elif type_paymentmethod == "credit":
+        elif type_paymentmethod == "card":
             data_paymentmethod = {}
             if token_card:
                 data_paymentmethod["token"] = token_card
@@ -55,7 +55,28 @@ class StripePaymentMethod(PaymentMethodInterface):
                 else:
                     raise ValueError("At least one card detail must be provided.")
     
-        payment_method = stripe.PaymentMethod.create(**params)
+        try:
+            payment_method = stripe.PaymentMethod.create(**params)
+        
+        except stripe.error.RateLimitError as e:
+            raise Exception(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+
+        except stripe.error.InvalidRequestError as e:
+            raise Exception(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+
+        except stripe.error.AuthenticationError as e:
+            raise Exception(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+
+        except stripe.error.APIConnectionError as e:
+            raise Exception(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+
+        except stripe.error.StripeError as e:
+            raise Exception(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+        
+        except Exception as e:
+            # Handle exceptions (e.g., log the error, re-raise, etc.)
+            raise Exception(f"Error creating payment method: {e}")
+        
 
         return payment_method
 
@@ -106,7 +127,27 @@ class StripePaymentMethod(PaymentMethodInterface):
                 params["card"] = data_paymentmethod
 
 
-        payment_method = stripe.PaymentMethod.modify(**params)
+        try:
+            payment_method = stripe.PaymentMethod.modify(**params)
+
+        except stripe.error.RateLimitError as e:
+            raise Exception(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+
+        except stripe.error.InvalidRequestError as e:
+            raise Exception(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+
+        except stripe.error.AuthenticationError as e:
+            raise Exception(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+
+        except stripe.error.APIConnectionError as e:
+            raise Exception(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+
+        except stripe.error.StripeError as e:
+            raise Exception(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+
+        except Exception as e:
+            # Handle exceptions (e.g., log the error, re-raise, etc.)
+            raise Exception(f"Error modifying payment method: {e}")
 
         return payment_method
 
@@ -124,9 +165,37 @@ class StripePaymentMethod(PaymentMethodInterface):
             param["ending_before"] = ending_before
 
 
-        customer_paymentmethods = stripe.Customer.list_payment_methods(**param)
+        try:
+            customer_paymentmethods = stripe.Customer.list_payment_methods(**param)
+            has_more = customer_paymentmethods["has_more"]
+            list_paymentmethods = customer_paymentmethods["data"]
+            while has_more:
+                param["starting_after"] = list_paymentmethods[-1]["id"]
+                customer_paymentmethods = stripe.Customer.list_payment_methods(**param)
+                list_paymentmethods.extend(customer_paymentmethods["data"])
+                has_more = customer_paymentmethods["has_more"]
+        
+        except stripe.error.RateLimitError as e:
+            raise Exception(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
 
-        return customer_paymentmethods
+        except stripe.error.InvalidRequestError as e:
+            raise Exception(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+
+        except stripe.error.AuthenticationError as e:
+            raise Exception(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+
+        except stripe.error.APIConnectionError as e:
+            raise Exception(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+
+        except stripe.error.StripeError as e:
+            raise Exception(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+
+        except Exception as e:
+            # Handle exceptions (e.g., log the error, re-raise, etc.)
+            raise Exception(f"Error listing payment methods: {e}")
+
+
+        return list_paymentmethods
 
     @check_type_args
     def get_paymentmethod(self, paymentmethod_id: str) -> Dict[str, Any]:
@@ -134,11 +203,32 @@ class StripePaymentMethod(PaymentMethodInterface):
         if paymentmethod_id == "":
             raise ValueError("Payment method ID cannot be empty.")
         
-        paymentmethod = stripe.PaymentMethod.retrieve(paymentmethod_id)
+        try:
+            paymentmethod = stripe.PaymentMethod.retrieve(paymentmethod_id)
+
+        except stripe.error.RateLimitError as e:
+            raise Exception(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+
+        except stripe.error.InvalidRequestError as e:
+            raise Exception(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+
+        except stripe.error.AuthenticationError as e:
+            raise Exception(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+
+        except stripe.error.APIConnectionError as e:
+            raise Exception(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+
+        except stripe.error.StripeError as e:
+            raise Exception(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+
+        except Exception as e:
+            # Handle exceptions (e.g., log the error, re-raise, etc.)
+            raise Exception(f"Error listing payment methods: {e}")
+
         return paymentmethod
 
     @check_type_args
-    def get_paymentmethods(self, ending_before: str = "", starting_after: str = "", limit: int = 0, type: str = "") -> List[Dict[str, Any]]:
+    def get_paymentmethods(self, ending_before: str = "", starting_after: str = "", limit: int = 100, type: str = "") -> List[Dict[str, Any]]:
         # Implementation for listing payment methods using Stripe API
         params = {}
 
@@ -151,8 +241,37 @@ class StripePaymentMethod(PaymentMethodInterface):
         if ending_before:
             params["ending_before"] = ending_before
 
-        paymentmethods = stripe.PaymentMethod.list(**params)
-        return paymentmethods
+        try:
+            paymentmethods = stripe.PaymentMethod.list(**params)
+            has_more = paymentmethods["has_more"]
+            list_paymentmethods = paymentmethods["data"]
+            while has_more:
+                params["starting_after"] = list_paymentmethods[-1]["id"]
+                paymentmethods = stripe.PaymentMethod.list(**params)
+                list_paymentmethods.extend(paymentmethods["data"])
+                has_more = paymentmethods["has_more"]
+
+        except stripe.error.RateLimitError as e:
+            raise Exception(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+
+        except stripe.error.InvalidRequestError as e:
+            raise Exception(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+
+        except stripe.error.AuthenticationError as e:
+            raise Exception(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+
+        except stripe.error.APIConnectionError as e:
+            raise Exception(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+
+        except stripe.error.StripeError as e:
+            raise Exception(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+
+        except Exception as e:
+            # Handle exceptions (e.g., log the error, re-raise, etc.)
+            raise Exception(f"Error listing payment methods: {e}")
+
+
+        return list_paymentmethods
 
     @check_type_args
     def atach_paymentmethod_to_customer(self, paymentmethod_id: str, customer_id: str):
@@ -161,7 +280,29 @@ class StripePaymentMethod(PaymentMethodInterface):
             raise ValueError("Payment method ID cannot be empty.")
         if customer_id == "":
             raise ValueError("Customer ID cannot be empty.")
-        paymentmethod = stripe.PaymentMethod.attach(payment_method=paymentmethod_id, customer=customer_id)
+        
+        try:
+            paymentmethod = stripe.PaymentMethod.attach(payment_method=paymentmethod_id, customer=customer_id)
+
+        except stripe.error.RateLimitError as e:
+            raise Exception(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+
+        except stripe.error.InvalidRequestError as e:
+            raise Exception(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+
+        except stripe.error.AuthenticationError as e:
+            raise Exception(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+
+        except stripe.error.APIConnectionError as e:
+            raise Exception(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+
+        except stripe.error.StripeError as e:
+            raise Exception(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+        
+        except Exception as e:
+            # Cualquier otra excepción no prevista
+            raise Exception(f"Error attaching payment method: {e}")
+
         return paymentmethod
 
     @check_type_args
@@ -169,5 +310,27 @@ class StripePaymentMethod(PaymentMethodInterface):
         # Implementation for detaching a payment method from a customer using Stripe API
         if paymentmethod_id == "":
             raise ValueError("Payment method ID cannot be empty.")
-        paymentmethod = stripe.PaymentMethod.detach(payment_method=paymentmethod_id)
+        
+        try:
+            paymentmethod = stripe.PaymentMethod.detach(payment_method=paymentmethod_id)
+
+        except stripe.error.RateLimitError as e:
+            raise Exception(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+
+        except stripe.error.InvalidRequestError as e:
+            raise Exception(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+
+        except stripe.error.AuthenticationError as e:
+            raise Exception(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+
+        except stripe.error.APIConnectionError as e:
+            raise Exception(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+
+        except stripe.error.StripeError as e:
+            raise Exception(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+
+        except Exception as e:
+            # Cualquier otra excepción no prevista
+            raise Exception(f"Error detaching payment method: {e}")
+
         return paymentmethod

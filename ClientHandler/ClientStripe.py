@@ -11,10 +11,32 @@ class StripeClient(ClientHandlerInterface):
     ###                         Get all customers in Stripe
     ####################################################################################
     @check_type_args
-    def get_customers(self) -> Dict[str, Any]:
-        """Retrieve the current customer."""
+    def get_customers(self, limit: int = 0, starting_after: str = "", ending_before: str = "") -> Dict[str, Any]:
+        
+        if limit == 0:
+            limit = 100
+        
+        params = {"limit": limit}
+
+        if starting_after:
+            params["starting_after"] = starting_after
+        if ending_before:
+            params["ending_before"] = ending_before
+
         try:
-            return stripe.Customer.list()
+
+            resp = stripe.Customer.list(**params)
+            if not resp:
+                raise ValueError("No customers found.")
+            
+            else:
+                list_customers = resp["data"]
+
+            while resp["has_more"]:
+                last_customer_id = resp["data"][-1]["id"]
+                resp = stripe.Customer.list(limit=limit, starting_after=last_customer_id)
+                list_customers.extend(resp["data"])
+
         except stripe.error.RateLimitError as e:
             # Handle rate limit errors
             print(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
@@ -38,6 +60,11 @@ class StripeClient(ClientHandlerInterface):
         except Exception as e:
             # Handle exceptions (e.g., log the error, re-raise, etc.)
             print(f"Error creating customer: {e}")
+
+        
+            
+        return list_customers
+
     
 
     ####################################################################################
@@ -203,7 +230,7 @@ class StripeClient(ClientHandlerInterface):
         if not customer_id:
             raise ValueError("Customer ID must be provided for deletion.")
         try:
-            stripe.Customer.delete(customer_id)
+            return stripe.Customer.delete(customer_id)
         except stripe.error.RateLimitError as e:
             # Handle rate limit errors
             print(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")

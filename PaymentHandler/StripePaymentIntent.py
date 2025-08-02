@@ -97,7 +97,7 @@ class StripePaymentIntent(PaymentInterface):
         return paymentintent
     
     @check_type_args
-    def list_all_paymentintents(self, customer_id: str = "", date: int = 0, limit: int = 0, starting_after: str = "", ending_before: str = "") -> Dict[str, Any]:
+    def list_all_paymentintents(self, customer_id: str = "", date: int = 0, limit: int = 100, starting_after: str = "", ending_before: str = "") -> Dict[str, Any]:
         """
         List all payment intents for a customer.
         
@@ -124,6 +124,18 @@ class StripePaymentIntent(PaymentInterface):
         
         try:
             payment_intents = stripe.PaymentIntent.list(**params)
+            has_more = payment_intents['has_more']
+
+            list_payment_intents = payment_intents['data']
+
+            while has_more:
+
+                params["starting_after"] = list_payment_intents[-1]['id']
+                payment_intents = stripe.PaymentIntent.list(**params)
+                has_more = payment_intents['has_more']
+                list_payment_intents.extend(payment_intents['data'])
+
+
         except stripe.error.RateLimitError as e:
             # Handle rate limit errors
             print(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
@@ -148,5 +160,5 @@ class StripePaymentIntent(PaymentInterface):
             # Handle exceptions (e.g., log the error, re-raise, etc.)
             print(f"Error creating customer: {e}")
             
-        return payment_intents
+        return list_payment_intents
         
