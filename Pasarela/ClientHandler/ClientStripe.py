@@ -116,15 +116,14 @@ class StripeClient(ClientHandlerInterface):
             stripe_customer = stripe.Customer.create(
                 name=name,
                 email=email,
+                phone=phone,
                 address={
                     "line1": address,
                     "city": city,
                     "country": country,
-                    "phone": phone,
                     "state": state,
                     "postal_code": postal_code
                 },
-                currency=currency,
                 description=description,
                 invoice_settings={
                     "default_payment_method": default_payment_method
@@ -136,27 +135,27 @@ class StripeClient(ClientHandlerInterface):
             )
         except stripe.error.RateLimitError as e:
             # Handle rate limit errors
-            print(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+            raise stripe.error.RateLimitError(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
 
         except stripe.error.InvalidRequestError as e:
             # Handle invalid request errors
-            print(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+            raise stripe.error.InvalidRequestError(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
 
         except stripe.error.AuthenticationError as e:
             # Handle Authentication Error
-            print(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+            raise stripe.error.AuthenticationError(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
 
         except stripe.error.APIConnectionError as e:
             # Handle API connection errors
-            print(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+            raise stripe.error.APIConnectionError(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
 
         except stripe.error.StripeError as e:
             # Handle generic Stripe errors
-            print(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+            raise stripe.error.StripeError(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
 
         except Exception as e:
             # Handle exceptions (e.g., log the error, re-raise, etc.)
-            print(f"Error creating customer: {e}")
+            raise Exception(f"Error creating customer: {e}")
 
 
         return stripe_customer
@@ -178,15 +177,14 @@ class StripeClient(ClientHandlerInterface):
                 customer_id,
                 name=name,
                 email=email,
+                phone=phone,
                 address={
                     "line1": address,
                     "city": city,
                     "country": country,
-                    "phone": phone,
                     "state": state,
                     "postal_code": postal_code
                 },
-                currency=currency,
                 invoice_settings={
                     "default_payment_method": default_payment_method
                 },
@@ -197,27 +195,27 @@ class StripeClient(ClientHandlerInterface):
             )
         except stripe.error.RateLimitError as e:
             # Handle rate limit errors
-            print(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+            raise stripe.error.RateLimitError(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
 
         except stripe.error.InvalidRequestError as e:
             # Handle invalid request errors
-            print(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+            raise stripe.error.InvalidRequestError(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
 
         except stripe.error.AuthenticationError as e:
             # Handle Authentication Error
-            print(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+            raise stripe.error.AuthenticationError(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
 
         except stripe.error.APIConnectionError as e:
             # Handle API connection errors
-            print(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+            raise stripe.error.APIConnectionError(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
 
         except stripe.error.StripeError as e:
             # Handle generic Stripe errors
-            print(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+            raise stripe.error.StripeError(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
 
         except Exception as e:
             # Handle exceptions (e.g., log the error, re-raise, etc.)
-            print(f"Error updating customer: {e}")
+            raise Exception(f"Error creating customer: {e}")
 
         return customer
     
@@ -233,27 +231,27 @@ class StripeClient(ClientHandlerInterface):
             return stripe.Customer.delete(customer_id)
         except stripe.error.RateLimitError as e:
             # Handle rate limit errors
-            print(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+            raise stripe.error.RateLimitError(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
 
         except stripe.error.InvalidRequestError as e:
             # Handle invalid request errors
-            print(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+            raise stripe.error.InvalidRequestError(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
 
         except stripe.error.AuthenticationError as e:
             # Handle Authentication Error
-            print(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+            raise stripe.error.AuthenticationError(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
 
         except stripe.error.APIConnectionError as e:
             # Handle API connection errors
-            print(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+            raise stripe.error.APIConnectionError(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
 
         except stripe.error.StripeError as e:
             # Handle generic Stripe errors
-            print(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+            raise stripe.error.StripeError(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
 
         except Exception as e:
             # Handle exceptions (e.g., log the error, re-raise, etc.)
-            print(f"Error updating customer: {e}")
+            raise Exception(f"Error creating customer: {e}")
 
 
     
@@ -270,24 +268,24 @@ class StripeClient(ClientHandlerInterface):
             return stripe.Customer.search(query=query)
         except stripe.error.RateLimitError as e:
             # Handle rate limit errors
-            print(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
+            raise stripe.error.RateLimitError(f"Code error: {e.code}, Rate Limit Error Message: {e.user_message}")
 
         except stripe.error.InvalidRequestError as e:
             # Handle invalid request errors
-            print(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
+            raise stripe.error.InvalidRequestError(f"Code error: {e.code}, Invalid Requests Error Message: {e.user_message}")
 
         except stripe.error.AuthenticationError as e:
             # Handle Authentication Error
-            print(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
+            raise stripe.error.AuthenticationError(f"Code error: {e.code}, Authentication Error Message: {e.user_message}")
 
         except stripe.error.APIConnectionError as e:
             # Handle API connection errors
-            print(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
+            raise stripe.error.APIConnectionError(f"Code error: {e.code}, API Connection Error Message: {e.user_message}")
 
         except stripe.error.StripeError as e:
             # Handle generic Stripe errors
-            print(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
+            raise stripe.error.StripeError(f"Code error: {e.code}, Stripe Generic Error Message: {e.user_message}")
 
         except Exception as e:
             # Handle exceptions (e.g., log the error, re-raise, etc.)
-            print(f"Error searching customers: {e}")
+            raise Exception(f"Error creating customer: {e}")

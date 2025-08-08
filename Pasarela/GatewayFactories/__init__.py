@@ -1,9 +1,9 @@
-from .StripeGateway import StripeGateway
+from .StripeGateway import StripeFactory
 from .GatewayFactories import PaymentGatewayFactory
 from .Gatewayinterface import GatewayInterface
 
 __all__ = [
-    "StripeGateway",
+    "StripeFactory",
    "PaymentGatewayFactory",
    "GatewayInterface"
 ]

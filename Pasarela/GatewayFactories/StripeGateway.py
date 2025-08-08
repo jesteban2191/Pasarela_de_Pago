@@ -17,9 +17,9 @@ class StripeFactory(GatewayInterface):
         self._token = self._auth.get_token()
         stripe.api_key = self._token
         self._client = ClientFactory.get_client(self._gateway)
-        self._payment = PaymentIntentFactory.get_payment(self._gateway)
+        self._payment = PaymentIntentFactory.get_payment_intent(self._gateway)
         self._payment_method = PaymentMethodFactory.get_payment_method(self._gateway)
-        self._refund = RefundFactory.get_refund(self._gateway)
+        self._refund = RefundFactory.get_refund_handler(self._gateway)
 
     ################################################################################################
     ###                         Methods for client management
@@ -31,8 +31,7 @@ class StripeFactory(GatewayInterface):
         if not list_all_customers:
             raise ValueError("No customers found.")
         
-        df_customers = pd.DataFrame(list_all_customers)
-        df_customers = pd.json_normalize(df_customers)
+        df_customers = pd.json_normalize(list_all_customers)
 
         return df_customers
     
@@ -66,8 +65,8 @@ class StripeFactory(GatewayInterface):
             if not created_client:
                 raise ValueError("Failed to create client.")
             
-            df_created_client = pd.DataFrame([created_client])
-            df_created_client = pd.json_normalize(df_created_client)
+            
+            df_created_client = pd.json_normalize([created_client])
         else:
             df_created_client = pd.DataFrame(client_already_created_info)
             df_created_client = pd.json_normalize(df_created_client)
@@ -84,8 +83,7 @@ class StripeFactory(GatewayInterface):
         if not updated_client:
             raise ValueError(f"Failed to update client with ID {customer_id}.")
         
-        df_updated_client = pd.DataFrame([updated_client])
-        df_updated_client = pd.json_normalize(df_updated_client)
+        df_updated_client = pd.json_normalize(updated_client)
 
         return df_updated_client
     
@@ -113,8 +111,8 @@ class StripeFactory(GatewayInterface):
             list_paymentmethods = self._payment_method.get_paymentmethods()        
 
         if list_paymentmethods:
-            df_paymentmethods = pd.DataFrame(list_paymentmethods)
-            df_paymentmethods = pd.json_normalize(df_paymentmethods)
+            
+            df_paymentmethods = pd.json_normalize(list_paymentmethods)
 
 
 
@@ -163,9 +161,8 @@ class StripeFactory(GatewayInterface):
                         token_card=token_card
                     )
 
-            df_paymentmethod = pd.DataFrame([paymentmethod])
 
-            df_paymentmethod = pd.json_normalize(df_paymentmethod)
+            df_paymentmethod = pd.json_normalize(paymentmethod)
         else: 
             df_paymentmethod = df_paymentmethods_filtered
 
@@ -200,8 +197,8 @@ class StripeFactory(GatewayInterface):
                     if not paymentmethod_updated:
                         raise ValueError(f"Failed to update payment method with ID {paymentmethod_id}.")
                     
-                    df_paymentmethod_updated = pd.DataFrame([paymentmethod_updated])
-                    df_paymentmethod_updated = pd.json_normalize(df_paymentmethod_updated)
+                    
+                    df_paymentmethod_updated = pd.json_normalize(paymentmethod_updated)
             
             else:
                 raise ValueError("Invalid payment method type. Must be 'us_bank_account' or 'card'.")
@@ -218,8 +215,7 @@ class StripeFactory(GatewayInterface):
         if customer_id:
             list_paymentmethods = self._payment_method.get_customer_paymentmethods(customer_id, limit, starting_after, ending_before)
             if list_paymentmethods:
-                df_client_paymentmethods = pd.DataFrame(list_paymentmethods)
-                df_client_paymentmethods = pd.json_normalize(df_client_paymentmethods)
+                df_client_paymentmethods = pd.json_normalize(list_paymentmethods)
             else:
                 raise ValueError(f"No payment methods found for client with ID {customer_id}.")
         else:
@@ -234,8 +230,7 @@ class StripeFactory(GatewayInterface):
         if paymentmethod_id:
             paymentmethod = self._payment_method.get_paymentmethod(paymentmethod_id)
             if paymentmethod:
-                df_paymentmethod = pd.DataFrame([paymentmethod])
-                df_paymentmethod = pd.json_normalize(df_paymentmethod)
+                df_paymentmethod = pd.json_normalize(paymentmethod)
             else:
                 print(f"Payment method with ID {paymentmethod_id} not found.")
             
@@ -250,12 +245,11 @@ class StripeFactory(GatewayInterface):
 
         list_all_paymentmethods = self._payment_method.get_paymentmethods(ending_before, starting_after, limit, type)
         if list_all_paymentmethods:
-            df_paymentmethods = pd.DataFrame(list_all_paymentmethods)
-            df_paymentmethods = pd.json_normalize(df_paymentmethods)
+            df_paymentmethods = pd.json_normalize(list_all_paymentmethods)
         else:
             print(f"There are not Payment Method alredy created")
 
-        return list_all_paymentmethods
+        return df_paymentmethods
     
 
     @check_type_args
@@ -266,8 +260,7 @@ class StripeFactory(GatewayInterface):
         if list_client:
             paymentmethod_attached = self._payment_method.atach_paymentmethod_to_customer(paymentmethod_id, customer_id)
 
-            df_paymentmethod_attached = pd.DataFrame([paymentmethod_attached])
-            df_paymentmethod_attached = pd.json_normalize(df_paymentmethod_attached)
+            df_paymentmethod_attached = pd.json_normalize([paymentmethod_attached])
 
         else:
             raise ValueError(f"Client with ID {customer_id} does not exist.")
@@ -283,8 +276,7 @@ class StripeFactory(GatewayInterface):
         if list_client:
             paymentmethod_detached = self._payment_method.detach_paymentmethod_from_customer(paymentmethod_id, customer_id)
 
-            df_paymentmethod_detached = pd.DataFrame([paymentmethod_detached])
-            df_paymentmethod_detached = pd.json_normalize(df_paymentmethod_detached)
+            df_paymentmethod_detached = pd.json_normalize([paymentmethod_detached])
 
         else:
             raise ValueError(f"Client with ID {customer_id} does not exist.")
@@ -320,8 +312,7 @@ class StripeFactory(GatewayInterface):
         )
 
         if paymentintent:
-            df_paymentintent = pd.DataFrame([paymentintent])
-            df_paymentintent = pd.json_normalize(df_paymentintent)
+            df_paymentintent = pd.json_normalize([paymentintent])
         else:
             raise ValueError("Failed to create payment intent.")
         
@@ -333,8 +324,7 @@ class StripeFactory(GatewayInterface):
         if payment_intent_id:
             payment_intent = self._payment.retrieve_payment(payment_intent_id)
             if payment_intent:
-                df_payment_intent = pd.DataFrame([payment_intent])
-                df_payment_intent = pd.json_normalize(df_payment_intent)
+                df_payment_intent = pd.json_normalize([payment_intent])
             else:
                 raise ValueError(f"Payment intent with ID {payment_intent_id} not found.")
         else:
@@ -348,8 +338,7 @@ class StripeFactory(GatewayInterface):
 
         list_all_paymentintents = self._payment.list_all_paymentintents(customer_id, date, limit, starting_after, ending_before)
         if list_all_paymentintents:
-            df_paymentintents = pd.DataFrame(list_all_paymentintents)
-            df_paymentintents = pd.json_normalize(df_paymentintents)
+            df_paymentintents = pd.json_normalize(list_all_paymentintents)
         else:
             print(f"There are not Payment Intents alredy created")
 
@@ -369,8 +358,7 @@ class StripeFactory(GatewayInterface):
                 refund = self._refund.create_refund(payment_intent_id, amount, reason)
 
                 if refund:
-                    df_refund = pd.DataFrame([refund])
-                    df_refund = pd.json_normalize(df_refund)
+                    df_refund = pd.json_normalize([refund])
                 else:
                     raise ValueError("Failed to create refund.")
                 
@@ -403,8 +391,7 @@ class StripeFactory(GatewayInterface):
 
         list_refunds = self._refund.list_refunds(payment_intent_id, limit, date, ending_before, starting_after)
         if list_refunds:
-            df_refunds = pd.DataFrame(list_refunds)
-            df_refunds = pd.json_normalize(df_refunds)
+            df_refunds = pd.json_normalize(list_refunds)
         else:
             print(f"There are not Refunds alredy created")
 

@@ -1,4 +1,4 @@
-from .StripeGateway import StripeGateway
+from .StripeGateway import StripeFactory
 from typing import Dict, Any
 
 class PaymentGatewayFactory:
@@ -15,6 +15,6 @@ class PaymentGatewayFactory:
         :return: An instance of the specified payment gateway.
         """
         if gateway_type.lower() == 'stripe':
-            return StripeGateway()
+            return StripeFactory()
         else:
             raise ValueError(f"Unsupported gateway type: {gateway_type}")
